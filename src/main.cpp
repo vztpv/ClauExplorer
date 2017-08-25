@@ -2,7 +2,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 //
-#include <wiz/ClauText.h> 
+#include <wiz/ClauText.h> // maybe bug exist in parent (wiz::load_data::UserType)
 //
 #include <Windows.h>
 //
@@ -177,8 +177,10 @@ protected:
 		// todo
 		 
 	}
-	virtual void refresh_buttonOnButtonClick(wxCommandEvent& event) { 
-		RefreshTable(now);
+	virtual void refresh_buttonOnButtonClick(wxCommandEvent& event) {
+		if (now) {
+			RefreshTable(now);
+		}
 	}
 
 	virtual void m_dataViewListCtrl1OnChar(wxKeyEvent& event) { 
@@ -281,7 +283,7 @@ MainFrame::MainFrame(wxWindow* parent, wxWindowID id, const wxString& title, con
 	wxBoxSizer* bSizer2;
 	bSizer2 = new wxBoxSizer(wxHORIZONTAL);
 
-	back_button = new wxButton(this, wxID_ANY, wxT("Â¡Ã£"), wxDefaultPosition, wxDefaultSize, 0);
+	back_button = new wxButton(this, wxID_ANY, wxT("¡ã"), wxDefaultPosition, wxDefaultSize, 0);
 	back_button->SetFont(wxFont(15, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString));
 
 	bSizer2->Add(back_button, 0, wxALL, 5);
