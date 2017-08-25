@@ -4,6 +4,7 @@
 //
 #include <wiz/ClauText.h> 
 #include <string>
+#include <algorithm>
 //
 #include <Windows.h>
 //
@@ -83,6 +84,7 @@ public:
 
 ChangeWindow::ChangeWindow(wxWindow* parent, wiz::load_data::UserType* ut, bool isUserType, int idx, int type,  wxWindowID id, const wxPoint& pos, const wxSize& size, long style) : ut(ut), isUserType(isUserType), idx(idx), type(type), wxFrame(parent, id, "change/insert window", pos, size, style)
 {
+
 	wxBoxSizer* bSizer4;
 	bSizer4 = new wxBoxSizer(wxVERTICAL);
 
@@ -328,14 +330,20 @@ protected:
 	virtual void FileSaveMenuOnMenuSelection(wxCommandEvent& event) {  }
 	virtual void FileExitMenuOnMenuSelection(wxCommandEvent& event) { Close(true);  }
 	virtual void InsertMenuOnMenuSelection(wxCommandEvent& event) {
-		if (-1 == position) { return; }
+		
 		if (1 == view_mode) { return; }
+		if (-1 == position) { 
+			ChangeWindow* changeWindow = new ChangeWindow(this, now, 0, std::max<int>(0, now->GetIListSize()), 2);
+
+			changeWindow->Show();
+
+			return;
+		}
 
 		int idx = position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * dataViewListCtrlNo;
 		int type = 2;
 		bool isUserType = now->IsUserTypeList(idx);
 
-		if (position == -1) { return; }
 		if (dataViewListCtrlNo == -1) { return; }
 
 		ChangeWindow* changeWindow = new ChangeWindow(this, now, isUserType, idx, type);
@@ -350,15 +358,26 @@ protected:
 		int type = 1;
 		bool isUserType = (idx < now->GetUserTypeListSize());
 		
-		if (position == -1) { return; }
-		if (dataViewListCtrlNo == -1) { return; }
-
 		ChangeWindow* changeWindow = new ChangeWindow(this, now, isUserType,
 									isUserType? idx : idx - now->GetUserTypeListSize(), type);
 
 		changeWindow->Show();
 	}
-	virtual void RemoveMenuOnMenuSelection(wxCommandEvent& event) {  }
+	virtual void RemoveMenuOnMenuSelection(wxCommandEvent& event) { 
+		if (-1 == position) { return; }
+		if (1 != view_mode) { return; }
+
+		int idx = position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * dataViewListCtrlNo;
+		int type = 1;
+		bool isUserType = (idx < now->GetUserTypeListSize());
+
+		if (isUserType) {
+			now->RemoveUserTypeList(idx);
+		}
+		else {
+			now->RemoveItemList(idx - now->GetUserTypeListSize());
+		}
+	}
 	virtual void back_buttonOnButtonClick(wxCommandEvent& event) {
 		if (now && now->GetParent()) { 
 			RefreshTable(now->GetParent());
@@ -443,12 +462,14 @@ protected:
 
 	virtual void DefaultViewMenuOnMenuSelection(wxCommandEvent& event) {
 		view_mode = 1;
+		m_statusBar1->SetLabelText(wxT("View Mode A"));
 		if (now) {
 			RefreshTable(now);
 		}
 	}
 	virtual void IListViewMenuOnMenuSelection(wxCommandEvent& event) {
 		view_mode = 2;
+		m_statusBar1->SetLabelText(wxT("View Mode B"));
 		if (now) {
 			RefreshTable(now);
 		}
@@ -463,6 +484,9 @@ public:
 
 MainFrame::MainFrame(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style) : wxFrame(parent, id, title, pos, size, style)
 {
+	now = &global;
+
+
 	this->SetSizeHints(wxDefaultSize, wxDefaultSize);
 
 	menuBar = new wxMenuBar(0);
@@ -564,6 +588,7 @@ MainFrame::MainFrame(wxWindow* parent, wxWindowID id, const wxString& title, con
 
 	m_statusBar1 = this->CreateStatusBar(1, wxST_SIZEGRIP, wxID_ANY);
 
+	m_statusBar1->SetLabelText(wxT("View Mode A"));
 
 	this->SetSizer(bSizer);
 	this->Layout();
