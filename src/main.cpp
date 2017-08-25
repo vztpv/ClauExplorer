@@ -441,13 +441,17 @@ protected:
 		position = m_dataViewListCtrl4->GetSelectedRow();
 	}
 
-	virtual void DefaultViewMenuOnMenuSelection(wxCommandEvent& event) { 
+	virtual void DefaultViewMenuOnMenuSelection(wxCommandEvent& event) {
 		view_mode = 1;
-		RefreshTable(now);
+		if (now) {
+			RefreshTable(now);
+		}
 	}
 	virtual void IListViewMenuOnMenuSelection(wxCommandEvent& event) {
 		view_mode = 2;
-		RefreshTable(now);
+		if (now) {
+			RefreshTable(now);
+		}
 	}
 public:
 
