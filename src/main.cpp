@@ -2,6 +2,10 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 //
+#ifdef __WXMSW__
+#include <wx/msw/msvcrt.h>      // redefines the new() operator 
+#endif
+
 #include <wiz/ClauText.h> 
 #include <string>
 #include <algorithm>
@@ -31,13 +35,12 @@
 #define NK_ENTER 13
 #define NK_BACKSPACE 8
 
-int view_mode = 1; // todo, insert : when view_mode == 2.
 
 class ChangeWindow : public wxFrame
 {
 private:
 	// function??
-
+	int view_mode;
 	wiz::load_data::UserType* ut;
 	bool isUserType; // ut(true) or it(false)
 	int idx; // utidx or itidx. or ilist idx(type == insert)
@@ -78,11 +81,12 @@ protected:
 	}
 
 public:
-	ChangeWindow(wxWindow* parent,wiz::load_data::UserType* ut, bool isUserType, int idx, int type,  wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(580, 198), long style = wxTAB_TRAVERSAL);
+	ChangeWindow(wxWindow* parent,wiz::load_data::UserType* ut, bool isUserType, int idx, int type, int view_mode, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(580, 198), long style = wxTAB_TRAVERSAL);
 	~ChangeWindow();
 };
 
-ChangeWindow::ChangeWindow(wxWindow* parent, wiz::load_data::UserType* ut, bool isUserType, int idx, int type,  wxWindowID id, const wxPoint& pos, const wxSize& size, long style) : ut(ut), isUserType(isUserType), idx(idx), type(type), wxFrame(parent, id, "change/insert window", pos, size, style)
+ChangeWindow::ChangeWindow(wxWindow* parent, wiz::load_data::UserType* ut, bool isUserType, int idx, int type,  int view_mode, wxWindowID id, const wxPoint& pos, const wxSize& size, long style) 
+	: ut(ut), isUserType(isUserType), idx(idx), type(type), view_mode(view_mode), wxFrame(parent, id, "change/insert window", pos, size, style)
 {
 
 	wxBoxSizer* bSizer4;
@@ -117,11 +121,14 @@ ChangeWindow::~ChangeWindow()
 class MainFrame : public wxFrame
 {
 private:
+	bool isMain = false;
+	int view_mode = 1; // todo, insert : when view_mode == 2.
 	wiz::load_data::UserType global;
 	wiz::load_data::UserType* now = nullptr;
 
 	int dataViewListCtrlNo = -1; 
 	int position = -1;
+
 private:
 	void RefreshTable(wiz::load_data::UserType* now)
 	{
@@ -299,10 +306,12 @@ private:
 		}
 	}
 protected:
+	vector<MainFrame*> otherWindow;
 	wxMenuBar* menuBar;
 	wxMenu* FileMenu;
 	wxMenu* DoMenu;
 	wxMenu* ViewMenu;
+	wxMenu* WindowMenu;
 	wxButton* back_button;
 	wxTextCtrl* dir_text;
 	wxButton* refresh_button;
@@ -314,6 +323,7 @@ protected:
 
 	// Virtual event handlers, overide them in your derived class
 	virtual void FileLoadMenuOnMenuSelection(wxCommandEvent& event) {
+		if (!isMain) { return; }
 		wxFileDialog* openFileDialog = new wxFileDialog(this);
 
 		if (openFileDialog->ShowModal() == wxID_OK) {
@@ -327,13 +337,24 @@ protected:
 			RefreshTable(now);
 		}
 	}
-	virtual void FileSaveMenuOnMenuSelection(wxCommandEvent& event) {  }
+	virtual void FileSaveMenuOnMenuSelection(wxCommandEvent& event) { 
+		if (!isMain) { return; }
+		wxFileDialog* saveFileDialog = new wxFileDialog(this, _("Save"), "", "",
+				"", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+
+		if (saveFileDialog->ShowModal() == wxID_OK)
+		{
+			string fileName(saveFileDialog->GetPath().c_str());
+
+			wiz::load_data::LoadData::SaveWizDB(global, fileName, "1");
+		}
+	}
 	virtual void FileExitMenuOnMenuSelection(wxCommandEvent& event) { Close(true);  }
 	virtual void InsertMenuOnMenuSelection(wxCommandEvent& event) {
 		
 		if (1 == view_mode) { return; }
 		if (-1 == position) { 
-			ChangeWindow* changeWindow = new ChangeWindow(this, now, 0, std::max<int>(0, now->GetIListSize()), 2);
+			ChangeWindow* changeWindow = new ChangeWindow(this, now, 0, std::max<int>(0, now->GetIListSize()), 2, view_mode);
 
 			changeWindow->Show();
 
@@ -346,7 +367,7 @@ protected:
 
 		if (dataViewListCtrlNo == -1) { return; }
 
-		ChangeWindow* changeWindow = new ChangeWindow(this, now, isUserType, idx, type);
+		ChangeWindow* changeWindow = new ChangeWindow(this, now, isUserType, idx, type, view_mode);
 
 		changeWindow->Show();
 	}
@@ -359,7 +380,7 @@ protected:
 		bool isUserType = (idx < now->GetUserTypeListSize());
 		
 		ChangeWindow* changeWindow = new ChangeWindow(this, now, isUserType,
-									isUserType? idx : idx - now->GetUserTypeListSize(), type);
+									isUserType? idx : idx - now->GetUserTypeListSize(), type, view_mode);
 
 		changeWindow->Show();
 	}
@@ -398,6 +419,7 @@ protected:
 	}
 
 	virtual void m_dataViewListCtrl1OnChar(wxKeyEvent& event) { 
+		if (view_mode == 2) { return; }
 		int dataViewListCtrlNo = 0; int position = m_dataViewListCtrl1->GetSelectedRow();
 		if (NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 0 && position >= 0 && position < now->GetUserTypeListSize()) {
 			now = now->GetUserTypeList(position);
@@ -410,6 +432,7 @@ protected:
 	}
 
 	virtual void m_dataViewListCtrl2OnChar(wxKeyEvent& event) { 
+		if (view_mode == 2) { return; }
 		int dataViewListCtrlNo = 1; int position = m_dataViewListCtrl2->GetSelectedRow();
 		if (NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 1 && position >= 0 && (position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) < now->GetUserTypeListSize())) {
 			now = now->GetUserTypeList(position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4));
@@ -421,6 +444,7 @@ protected:
 		}
 	}
 	virtual void m_dataViewListCtrl3OnChar(wxKeyEvent& event) {
+		if (view_mode == 2) { return; }
 		int dataViewListCtrlNo = 2; int position = m_dataViewListCtrl3->GetSelectedRow();
 		if (NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 2 && position >= 0 && (position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 2 < now->GetUserTypeListSize())) {
 			now = now->GetUserTypeList(position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 2);
@@ -432,6 +456,7 @@ protected:
 		}
 	}
 	virtual void m_dataViewListCtrl4OnChar(wxKeyEvent& event) {
+		if (view_mode == 2) { return; }
 		int dataViewListCtrlNo = 3; int position = m_dataViewListCtrl4->GetSelectedRow();
 		if (NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 3 && position >= 0 && (position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 3 < now->GetUserTypeListSize())) {
 			now = now->GetUserTypeList(position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 3);
@@ -474,12 +499,27 @@ protected:
 			RefreshTable(now);
 		}
 	}
+
+	virtual void OtherWindowMenuOnMenuSelection(wxCommandEvent& event) { 
+		if (!isMain) { return; }
+		MainFrame* frame = new MainFrame(this);
+		frame->view_mode = this->view_mode;
+		frame->now = this->now;
+		frame->RefreshTable(frame->now);
+
+
+		frame->Show(true);
+	}
+
 public:
 
 	MainFrame(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("ClauExplorer"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(789, 512), long style = wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL);
 
 	~MainFrame();
 
+	void FirstFrame() {
+		isMain = true;
+	}
 };
 
 MainFrame::MainFrame(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style) : wxFrame(parent, id, title, pos, size, style)
@@ -534,6 +574,15 @@ MainFrame::MainFrame(wxWindow* parent, wxWindowID id, const wxString& title, con
 	ViewMenu->Append(IListViewMenu);
 
 	menuBar->Append(ViewMenu, wxT("View"));
+
+
+	WindowMenu = new wxMenu();
+	wxMenuItem* OtherWindowMenu;
+	OtherWindowMenu = new wxMenuItem(WindowMenu, wxID_ANY, wxString(wxT("OtherWindow")), wxEmptyString, wxITEM_NORMAL);
+	WindowMenu->Append(OtherWindowMenu);
+
+	menuBar->Append(WindowMenu, wxT("Window"));
+
 
 	this->SetMenuBar(menuBar);
 
@@ -619,6 +668,8 @@ MainFrame::MainFrame(wxWindow* parent, wxWindowID id, const wxString& title, con
 	m_dataViewListCtrl2->Connect(wxEVT_COMMAND_DATAVIEW_SELECTION_CHANGED, wxDataViewEventHandler(MainFrame::m_dataViewListCtrl2OnDataViewListCtrlSelectionChanged), NULL, this);
 	m_dataViewListCtrl3->Connect(wxEVT_COMMAND_DATAVIEW_SELECTION_CHANGED, wxDataViewEventHandler(MainFrame::m_dataViewListCtrl3OnDataViewListCtrlSelectionChanged), NULL, this);
 	m_dataViewListCtrl4->Connect(wxEVT_COMMAND_DATAVIEW_SELECTION_CHANGED, wxDataViewEventHandler(MainFrame::m_dataViewListCtrl4OnDataViewListCtrlSelectionChanged), NULL, this);
+	
+	this->Connect(OtherWindowMenu->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::OtherWindowMenuOnMenuSelection));
 }
 
 MainFrame::~MainFrame()
@@ -648,12 +699,14 @@ MainFrame::~MainFrame()
 	m_dataViewListCtrl3->Disconnect(wxEVT_COMMAND_DATAVIEW_SELECTION_CHANGED, wxDataViewEventHandler(MainFrame::m_dataViewListCtrl3OnDataViewListCtrlSelectionChanged), NULL, this);
 	m_dataViewListCtrl4->Disconnect(wxEVT_COMMAND_DATAVIEW_SELECTION_CHANGED, wxDataViewEventHandler(MainFrame::m_dataViewListCtrl4OnDataViewListCtrlSelectionChanged), NULL, this);
 
+	this->Disconnect(wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::OtherWindowMenuOnMenuSelection));
 }
 
 class TestApp : public wxApp {
 public:
 	virtual bool OnInit() {
 		MainFrame* frame = new MainFrame(nullptr);
+		frame->FirstFrame();
 		frame->Show(true);
 		return true;
 	}
