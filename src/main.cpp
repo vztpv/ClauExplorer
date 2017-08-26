@@ -78,7 +78,7 @@ protected:
 	}
 
 public:
-	ChangeWindow(wxWindow* parent,wiz::load_data::UserType* ut, bool isUserType, int idx, int type, int view_mode, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(580, 198), long style = wxTAB_TRAVERSAL);
+	ChangeWindow(wxWindow* parent,wiz::load_data::UserType* ut, bool isUserType, int idx, int type, int view_mode, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(580, 198), long style = wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL);
 	~ChangeWindow();
 };
 
@@ -331,6 +331,8 @@ protected:
 			now = &global;
 
 			RefreshTable(now);
+
+			SetTitle(wxT("ClauExplorer : ") + _fileName);
 		}
 		openFileDialog->Destroy();
 	}
@@ -505,6 +507,7 @@ protected:
 		frame->now = this->now;
 		frame->RefreshTable(frame->now);
 
+		frame->SetTitle(GetTitle() + wxT(" : other window"));
 
 		frame->Show(true);
 	}
