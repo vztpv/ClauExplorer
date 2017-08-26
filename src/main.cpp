@@ -1,7 +1,10 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
+#ifdef _DEBUG
 #include <vld.h>
+#endif
+
 //
 #include <wiz/ClauText.h> 
 #include <string>
@@ -10,6 +13,8 @@
 #include <Windows.h>
 //
 #include <wx/wx.h>
+
+#include <wx/defs.h>
 //
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
@@ -138,6 +143,25 @@ private:
 		
 		dataViewListCtrlNo = -1;
 		position = -1;
+
+		{
+			wxDataViewListCtrl* ctrl[4];
+			ctrl[0] = m_dataViewListCtrl1;
+			ctrl[1] = m_dataViewListCtrl2;
+			ctrl[2] = m_dataViewListCtrl3;
+			ctrl[3] = m_dataViewListCtrl4;
+
+			for (int i = 0; i < 4; ++i) {
+				if (ctrl[i]->GetItemCount() > 0) {
+					dataViewListCtrlNo = i;
+					position = 0;
+
+					ctrl[dataViewListCtrlNo]->SelectRow(position);
+					ctrl[dataViewListCtrlNo]->SetFocus();
+					break;
+				}
+			}
+		}
 	}
 	void AddData(wiz::load_data::UserType* global)
 	{
@@ -167,6 +191,7 @@ private:
 				}
 
 				m_dataViewListCtrl1->AppendItem(value);
+
 				count++;
 			}
 			for (int i = 0; i < size_per_unit; ++i) {
@@ -418,10 +443,10 @@ protected:
 		}
 	}
 
-	virtual void m_dataViewListCtrl1OnChar(wxKeyEvent& event) { 
+	virtual void m_dataViewListCtrl1OnChar(wxKeyEvent& event) {
 		if (view_mode == 2) { return; }
-		int dataViewListCtrlNo = 0; int position = m_dataViewListCtrl1->GetSelectedRow();
-		if (NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 0 && position >= 0 && position < now->GetUserTypeListSize()) {
+		dataViewListCtrlNo = 0; position = m_dataViewListCtrl1->GetSelectedRow();
+		if (NK_ENTER == event.GetKeyCode() && position >= 0 && position < now->GetUserTypeListSize()) {
 			now = now->GetUserTypeList(position);
 			RefreshTable(now);
 		}
@@ -429,11 +454,42 @@ protected:
 			now = now->GetParent();
 			RefreshTable(now);
 		}
+		else {
+			wxDataViewListCtrl* ctrl[4];
+			ctrl[0] = m_dataViewListCtrl1;
+			ctrl[1] = m_dataViewListCtrl2;
+			ctrl[2] = m_dataViewListCtrl3;
+			ctrl[3] = m_dataViewListCtrl4;
+
+			ctrl[dataViewListCtrlNo]->UnselectRow(position);
+
+			if (WXK_UP == event.GetKeyCode() && dataViewListCtrlNo > -1 && position > 0)//< ctrl[dataViewListCtrlNo]->GetItemCount())
+			{
+				event.Skip();
+				return;
+			}
+			else if (WXK_DOWN == event.GetKeyCode() && dataViewListCtrlNo > -1 && position >= 0 && position < ctrl[dataViewListCtrlNo]->GetItemCount() - 1)
+			{
+				event.Skip();
+				return;
+			}
+			else if (WXK_LEFT == event.GetKeyCode() && dataViewListCtrlNo > 0 && position >= 0 && position < ctrl[dataViewListCtrlNo - 1]->GetItemCount())
+			{
+				dataViewListCtrlNo--;
+			}
+			else if (WXK_RIGHT == event.GetKeyCode() && dataViewListCtrlNo < 3 && position >= 0 && position < ctrl[dataViewListCtrlNo + 1]->GetItemCount())
+			{
+				dataViewListCtrlNo++;
+			}
+
+			ctrl[dataViewListCtrlNo]->SelectRow(position);
+			ctrl[dataViewListCtrlNo]->SetFocus();
+		}
 	}
 
 	virtual void m_dataViewListCtrl2OnChar(wxKeyEvent& event) { 
 		if (view_mode == 2) { return; }
-		int dataViewListCtrlNo = 1; int position = m_dataViewListCtrl2->GetSelectedRow();
+		dataViewListCtrlNo = 1; position = m_dataViewListCtrl2->GetSelectedRow();
 		if (NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 1 && position >= 0 && (position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) < now->GetUserTypeListSize())) {
 			now = now->GetUserTypeList(position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4));
 			RefreshTable(now);
@@ -442,10 +498,42 @@ protected:
 			now = now->GetParent();
 			RefreshTable(now);
 		}
+		else {
+			wxDataViewListCtrl* ctrl[4];
+			ctrl[0] = m_dataViewListCtrl1;
+			ctrl[1] = m_dataViewListCtrl2;
+			ctrl[2] = m_dataViewListCtrl3;
+			ctrl[3] = m_dataViewListCtrl4;
+
+			ctrl[dataViewListCtrlNo]->UnselectRow(position);
+
+			if (WXK_UP == event.GetKeyCode() && dataViewListCtrlNo > -1 && position > 0)//< ctrl[dataViewListCtrlNo]->GetItemCount())
+			{
+				event.Skip();
+				return;
+			}
+			else if (WXK_DOWN == event.GetKeyCode() && dataViewListCtrlNo > -1 && position >= 0 && position < ctrl[dataViewListCtrlNo]->GetItemCount() - 1)
+			{
+				event.Skip();
+				return;
+			}
+			else if (WXK_LEFT == event.GetKeyCode() && dataViewListCtrlNo > 0 && position >= 0 && position < ctrl[dataViewListCtrlNo - 1]->GetItemCount())
+			{
+				dataViewListCtrlNo--;
+			}
+			else if (WXK_RIGHT == event.GetKeyCode() && dataViewListCtrlNo < 3 && position >= 0 && position < ctrl[dataViewListCtrlNo + 1]->GetItemCount())
+			{
+				dataViewListCtrlNo++;
+			}
+
+			ctrl[dataViewListCtrlNo]->SelectRow(position);
+			ctrl[dataViewListCtrlNo]->SetFocus();
+		}
+
 	}
 	virtual void m_dataViewListCtrl3OnChar(wxKeyEvent& event) {
 		if (view_mode == 2) { return; }
-		int dataViewListCtrlNo = 2; int position = m_dataViewListCtrl3->GetSelectedRow();
+		dataViewListCtrlNo = 2; position = m_dataViewListCtrl3->GetSelectedRow();
 		if (NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 2 && position >= 0 && (position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 2 < now->GetUserTypeListSize())) {
 			now = now->GetUserTypeList(position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 2);
 			RefreshTable(now);
@@ -454,10 +542,41 @@ protected:
 			now = now->GetParent();
 			RefreshTable(now);
 		}
+		else {
+			wxDataViewListCtrl* ctrl[4];
+			ctrl[0] = m_dataViewListCtrl1;
+			ctrl[1] = m_dataViewListCtrl2;
+			ctrl[2] = m_dataViewListCtrl3;
+			ctrl[3] = m_dataViewListCtrl4;
+
+			ctrl[dataViewListCtrlNo]->UnselectRow(position);
+
+			if (WXK_UP == event.GetKeyCode() && dataViewListCtrlNo > -1 && position > 0)//< ctrl[dataViewListCtrlNo]->GetItemCount())
+			{
+				event.Skip();
+				return;
+			}
+			else if (WXK_DOWN == event.GetKeyCode() && dataViewListCtrlNo > -1 && position >= 0 && position < ctrl[dataViewListCtrlNo]->GetItemCount() - 1)
+			{
+				event.Skip();
+				return;
+			}
+			else if (WXK_LEFT == event.GetKeyCode() && dataViewListCtrlNo > 0 && position >= 0 && position < ctrl[dataViewListCtrlNo - 1]->GetItemCount())
+			{
+				dataViewListCtrlNo--;
+			}
+			else if (WXK_RIGHT == event.GetKeyCode() && dataViewListCtrlNo < 3 && position >= 0 && position < ctrl[dataViewListCtrlNo + 1]->GetItemCount())
+			{
+				dataViewListCtrlNo++;
+			}
+
+			ctrl[dataViewListCtrlNo]->SelectRow(position);
+			ctrl[dataViewListCtrlNo]->SetFocus();
+		}
 	}
 	virtual void m_dataViewListCtrl4OnChar(wxKeyEvent& event) {
 		if (view_mode == 2) { return; }
-		int dataViewListCtrlNo = 3; int position = m_dataViewListCtrl4->GetSelectedRow();
+		dataViewListCtrlNo = 3; position = m_dataViewListCtrl4->GetSelectedRow();
 		if (NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 3 && position >= 0 && (position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 3 < now->GetUserTypeListSize())) {
 			now = now->GetUserTypeList(position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 3);
 			RefreshTable(now);
@@ -465,6 +584,37 @@ protected:
 		else if (NK_BACKSPACE == event.GetKeyCode() && now->GetParent() != nullptr) {
 			now = now->GetParent();
 			RefreshTable(now);
+		}
+		else {
+			wxDataViewListCtrl* ctrl[4];
+			ctrl[0] = m_dataViewListCtrl1;
+			ctrl[1] = m_dataViewListCtrl2;
+			ctrl[2] = m_dataViewListCtrl3;
+			ctrl[3] = m_dataViewListCtrl4;
+
+			ctrl[dataViewListCtrlNo]->UnselectRow(position);
+
+			if (WXK_UP == event.GetKeyCode() && dataViewListCtrlNo > -1 && position > 0)//< ctrl[dataViewListCtrlNo]->GetItemCount())
+			{
+				event.Skip();
+				return;
+			}
+			else if (WXK_DOWN == event.GetKeyCode() && dataViewListCtrlNo > -1 && position >= 0 && position < ctrl[dataViewListCtrlNo]->GetItemCount() - 1)
+			{
+				event.Skip();
+				return;
+			}
+			else if (WXK_LEFT == event.GetKeyCode() && dataViewListCtrlNo > 0 && position >= 0 && position < ctrl[dataViewListCtrlNo - 1]->GetItemCount())
+			{
+				dataViewListCtrlNo--;
+			}
+			else if (WXK_RIGHT == event.GetKeyCode() && dataViewListCtrlNo < 3 && position >= 0 && position < ctrl[dataViewListCtrlNo + 1]->GetItemCount())
+			{
+				dataViewListCtrlNo++;
+			}
+
+			ctrl[dataViewListCtrlNo]->SelectRow(position);
+			ctrl[dataViewListCtrlNo]->SetFocus();
 		}
 	}
 
@@ -652,6 +802,7 @@ MainFrame::MainFrame(wxWindow* parent, wxWindowID id, const wxString& title, con
 	this->Connect(InsertMenu->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::InsertMenuOnMenuSelection));
 	this->Connect(ChangeMenu->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::ChangeMenuOnMenuSelection));
 	this->Connect(RemoveMenu->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::RemoveMenuOnMenuSelection));
+	
 
 	this->Connect(DefaultViewMenu->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::DefaultViewMenuOnMenuSelection));
 	this->Connect(IListViewMenu->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::IListViewMenuOnMenuSelection));
@@ -682,7 +833,7 @@ MainFrame::~MainFrame()
 	this->Disconnect(wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::InsertMenuOnMenuSelection));
 	this->Disconnect(wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::ChangeMenuOnMenuSelection));
 	this->Disconnect(wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::RemoveMenuOnMenuSelection));
-	
+
 	back_button->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MainFrame::back_buttonOnButtonClick), NULL, this);
 	dir_text->Disconnect(wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler(MainFrame::dir_textOnTextEnter), NULL, this);
 	refresh_button->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MainFrame::refresh_buttonOnButtonClick), NULL, this);
