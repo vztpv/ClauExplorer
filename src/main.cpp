@@ -1,11 +1,8 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
+#include <vld.h>
 //
-#ifdef __WXMSW__
-#include <wx/msw/msvcrt.h>      // redefines the new() operator 
-#endif
-
 #include <wiz/ClauText.h> 
 #include <string>
 #include <algorithm>
@@ -306,7 +303,6 @@ private:
 		}
 	}
 protected:
-	vector<MainFrame*> otherWindow;
 	wxMenuBar* menuBar;
 	wxMenu* FileMenu;
 	wxMenu* DoMenu;
@@ -336,6 +332,7 @@ protected:
 
 			RefreshTable(now);
 		}
+		openFileDialog->Destroy();
 	}
 	virtual void FileSaveMenuOnMenuSelection(wxCommandEvent& event) { 
 		if (!isMain) { return; }
@@ -348,6 +345,7 @@ protected:
 
 			wiz::load_data::LoadData::SaveWizDB(global, fileName, "1");
 		}
+		saveFileDialog->Destroy();
 	}
 	virtual void FileExitMenuOnMenuSelection(wxCommandEvent& event) { Close(true);  }
 	virtual void InsertMenuOnMenuSelection(wxCommandEvent& event) {
