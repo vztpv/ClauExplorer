@@ -57,7 +57,7 @@ protected:
 		string var(var_text->GetValue().c_str());
 		string val(val_text->GetValue().c_str());
 
-		if (1 == type && 1 == view_mode) {
+		if (1 == type) {
 			if (isUserType) {
 				ut->GetUserTypeList(idx)->SetName(var);
 			}
@@ -392,7 +392,6 @@ protected:
 			ChangeWindow* changeWindow = new ChangeWindow(this, now, 0, std::max<int>(0, now->GetIListSize()), 2, view_mode);
 
 			changeWindow->Show();
-
 			return;
 		}
 
@@ -407,30 +406,53 @@ protected:
 	}
 	virtual void ChangeMenuOnMenuSelection(wxCommandEvent& event) { 
 		if (-1 == position) { return; }
-		if (1 != view_mode) { return; }
-
-		int idx = position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * dataViewListCtrlNo;
-		bool isUserType = (idx < now->GetUserTypeListSize());
 		
-		ChangeWindow* changeWindow = new ChangeWindow(this, now, isUserType,
-									isUserType? idx : idx - now->GetUserTypeListSize(), 1, view_mode);
+		if (1 == view_mode) {
+			int idx = position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * dataViewListCtrlNo;
+			bool isUserType = (idx < now->GetUserTypeListSize());
 
-		changeWindow->Show();
+			ChangeWindow* changeWindow = new ChangeWindow(this, now, isUserType,
+				isUserType ? idx : idx - now->GetUserTypeListSize(), 1, view_mode);
+
+			changeWindow->Show();
+		}
+		else {
+			int idx = position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * dataViewListCtrlNo;
+			bool isUserType = now->IsUserTypeList(idx);
+
+			ChangeWindow* changeWindow = new ChangeWindow(this, now, isUserType,
+				isUserType? now->GetUserTypeIndexFromIlistIndex(idx) : now->GetItemIndexFromIlistIndex(idx), 1, view_mode);
+
+			changeWindow->Show();
+		}
 	}
 	virtual void RemoveMenuOnMenuSelection(wxCommandEvent& event) { 
 		if (-1 == position) { return; }
-		if (1 != view_mode) { return; }
 		int idx = position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * dataViewListCtrlNo;
 		int type = 1;
-		bool isUserType = (idx < now->GetUserTypeListSize());
+		
+		if (1 == view_mode) {
+			bool isUserType = (idx < now->GetUserTypeListSize());
 
-		if (isUserType) {
-			now->RemoveUserTypeList(idx);
+			if (isUserType) {
+				now->RemoveUserTypeList(idx);
+			}
+			else {
+				now->RemoveItemList(idx - now->GetUserTypeListSize());
+			}
+			RefreshTable(now);
 		}
 		else {
-			now->RemoveItemList(idx - now->GetUserTypeListSize());
+			bool isUserType = now->IsUserTypeList(idx);
+
+			if (isUserType) {
+				now->RemoveUserTypeList(now->GetUserTypeIndexFromIlistIndex(idx));
+			}
+			else {
+				now->RemoveItemList(now->GetItemIndexFromIlistIndex(idx));
+			}
+			RefreshTable(now);
 		}
-		RefreshTable(now);
 	}
 	virtual void back_buttonOnButtonClick(wxCommandEvent& event) {
 		if (now && now->GetParent()) { 
@@ -453,11 +475,18 @@ protected:
 
 	virtual void m_dataViewListCtrl1OnChar(wxKeyEvent& event) {
 		dataViewListCtrlNo = 0; position = m_dataViewListCtrl1->GetSelectedRow();
-		if (1 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position < now->GetUserTypeListSize()) {
+		if (1 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position < m_dataViewListCtrl1->GetItemCount()) {
 			now = now->GetUserTypeList(position);
 			RefreshTable(now);
 		}
-		else if (1 == view_mode && NK_BACKSPACE == event.GetKeyCode() && now->GetParent() != nullptr) {
+		else  if (2 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position < m_dataViewListCtrl1->GetItemCount()) {
+			if (now->IsUserTypeList(position)) {
+				const int idx = now->GetUserTypeIndexFromIlistIndex(position);
+				now = now->GetUserTypeList(idx);
+				RefreshTable(now);
+			}
+		}
+		else if (NK_BACKSPACE == event.GetKeyCode() && now->GetParent() != nullptr) {
 			now = now->GetParent();
 			RefreshTable(now);
 		}
@@ -493,14 +522,21 @@ protected:
 			ctrl[dataViewListCtrlNo]->SetFocus();
 		}
 	}
-
 	virtual void m_dataViewListCtrl2OnChar(wxKeyEvent& event) { 
 		dataViewListCtrlNo = 1; position = m_dataViewListCtrl2->GetSelectedRow();
-		if (1 == view_mode && NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 1 && position >= 0 && (position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) < now->GetUserTypeListSize())) {
+		if (1 == view_mode && NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 1 && position >= 0 && position < m_dataViewListCtrl2->GetItemCount()) {
 			now = now->GetUserTypeList(position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4));
 			RefreshTable(now);
 		}
-		else if (1 == view_mode && NK_BACKSPACE == event.GetKeyCode() && now->GetParent() != nullptr) {
+		else  if (2 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position < m_dataViewListCtrl2->GetItemCount()) {
+			const int pos = (position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4));
+			if (now->IsUserTypeList(pos)) {
+				const int idx = now->GetUserTypeIndexFromIlistIndex(pos);
+				now = now->GetUserTypeList(idx);
+				RefreshTable(now);
+			}
+		}
+		else if (NK_BACKSPACE == event.GetKeyCode() && now->GetParent() != nullptr) {
 			now = now->GetParent();
 			RefreshTable(now);
 		}
@@ -539,11 +575,19 @@ protected:
 	}
 	virtual void m_dataViewListCtrl3OnChar(wxKeyEvent& event) {
 		dataViewListCtrlNo = 2; position = m_dataViewListCtrl3->GetSelectedRow();
-		if (1 == view_mode && NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 2 && position >= 0 && (position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 2 < now->GetUserTypeListSize())) {
+		if (1 == view_mode && NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 2 && position >= 0 && position < m_dataViewListCtrl3->GetItemCount()) {
 			now = now->GetUserTypeList(position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 2);
 			RefreshTable(now);
 		}
-		else if (1 == view_mode && NK_BACKSPACE == event.GetKeyCode() && now->GetParent() != nullptr) {
+		else  if (2 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position < m_dataViewListCtrl3->GetItemCount()) {
+			const int pos = (position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 2);
+			if (now->IsUserTypeList(pos)) {
+				const int idx = now->GetUserTypeIndexFromIlistIndex(pos);
+				now = now->GetUserTypeList(idx);
+				RefreshTable(now);
+			}
+		}
+		else if (NK_BACKSPACE == event.GetKeyCode() && now->GetParent() != nullptr) {
 			now = now->GetParent();
 			RefreshTable(now);
 		}
@@ -581,11 +625,19 @@ protected:
 	}
 	virtual void m_dataViewListCtrl4OnChar(wxKeyEvent& event) {
 		dataViewListCtrlNo = 3; position = m_dataViewListCtrl4->GetSelectedRow();
-		if (1 == view_mode && NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 3 && position >= 0 && (position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 3 < now->GetUserTypeListSize())) {
+		if (1 == view_mode && NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 3 && position >= 0 && position < m_dataViewListCtrl4->GetItemCount()) {
 			now = now->GetUserTypeList(position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 3);
 			RefreshTable(now);
 		}
-		else if (1 == view_mode && NK_BACKSPACE == event.GetKeyCode() && now->GetParent() != nullptr) {
+		else  if (2 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position < m_dataViewListCtrl4->GetItemCount()) {
+			const int pos = (position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 3);
+			if (now->IsUserTypeList(pos)) {
+				const int idx = now->GetUserTypeIndexFromIlistIndex(pos);
+				now = now->GetUserTypeList(idx);
+				RefreshTable(now);
+			}
+		}
+		else if (NK_BACKSPACE == event.GetKeyCode() && now->GetParent() != nullptr) {
 			now = now->GetParent();
 			RefreshTable(now);
 		}
