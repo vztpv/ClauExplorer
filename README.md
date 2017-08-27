@@ -4,6 +4,6 @@
 # With ClauText HeaderFiles
     
 # Usage
-    Main? Window -> Load, Save, Insert(ViewB), Change(ViewA), Remove(ViewA), OtherWIndow, Enter(ViewA), Back(ViewA)
-    Child? Window -> Insert(ViewB), Change(ViewA), Remove(ViewA), Enter(ViewA), Back(ViewA)
+    Main? Window -> Load, Save, Insert(ViewB Only), Change, Remove, OtherWIndow, Enter, Back
+    Child? Window -> Insert(ViewB Only), Change, Remove, Enter, Back
     Enter(Enter key), Back(BackSpace Key)
