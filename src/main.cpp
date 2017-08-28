@@ -518,7 +518,7 @@ protected:
 			now = now->GetUserTypeList(position);
 			RefreshTable(now);
 		}
-		else  if (2 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position < now->GetUserTypeListSize()) {
+		else  if (2 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position < m_dataViewListCtrl1->GetItemCount()) {
 			if (now->IsUserTypeList(position)) {
 				const int idx = now->GetUserTypeIndexFromIlistIndex(position);
 				now = now->GetUserTypeList(idx);
@@ -567,7 +567,7 @@ protected:
 			now = now->GetUserTypeList(position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4));
 			RefreshTable(now);
 		}
-		else  if (2 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) < now->GetUserTypeListSize()) {
+		else  if (2 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position < m_dataViewListCtrl2->GetItemCount()) {
 			const int pos = (position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4));
 			if (now->IsUserTypeList(pos)) {
 				const int idx = now->GetUserTypeIndexFromIlistIndex(pos);
@@ -618,7 +618,7 @@ protected:
 			now = now->GetUserTypeList(position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 2);
 			RefreshTable(now);
 		}
-		else  if (2 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 2 < now->GetUserTypeListSize()) {
+		else  if (2 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position < m_dataViewListCtrl3->GetItemCount()) {
 			const int pos = (position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 2);
 			if (now->IsUserTypeList(pos)) {
 				const int idx = now->GetUserTypeIndexFromIlistIndex(pos);
@@ -668,7 +668,7 @@ protected:
 			now = now->GetUserTypeList(position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 3);
 			RefreshTable(now);
 		}
-		else  if (2 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 3 < now->GetUserTypeListSize()) {
+		else  if (2 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position < m_dataViewListCtrl4->GetItemCount()) {
 			const int pos = (position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 3);
 			if (now->IsUserTypeList(pos)) {
 				const int idx = now->GetUserTypeIndexFromIlistIndex(pos);
