@@ -38,7 +38,7 @@
 #define NK_BACKSPACE 8
 
 
-class ChangeWindow : public wxFrame
+class ChangeWindow : public wxDialog
 {
 private:
 	// function??
@@ -88,7 +88,7 @@ public:
 };
 
 ChangeWindow::ChangeWindow(wxWindow* parent, wiz::load_data::UserType* ut, bool isUserType, int idx, int type,  int view_mode, wxWindowID id, const wxPoint& pos, const wxSize& size, long style) 
-	: ut(ut), isUserType(isUserType), idx(idx), type(type), view_mode(view_mode), wxFrame(parent, id, "change/insert window", pos, size, style)
+	: ut(ut), isUserType(isUserType), idx(idx), type(type), view_mode(view_mode), wxDialog(parent, id, "change/insert window", pos, size, style)
 {
 
 	wxBoxSizer* bSizer4;
@@ -430,7 +430,11 @@ protected:
 		if (-1 == position) { 
 			ChangeWindow* changeWindow = new ChangeWindow(this, now, 0, std::max<int>(0, now->GetIListSize()), 2, view_mode);
 
-			changeWindow->Show();
+			changeWindow->ShowModal();
+
+			if (now) {
+				RefreshTable(now);
+			}
 			return;
 		}
 
@@ -441,7 +445,11 @@ protected:
 
 		ChangeWindow* changeWindow = new ChangeWindow(this, now, isUserType, idx, 2, view_mode);
 
-		changeWindow->Show();
+		changeWindow->ShowModal();
+
+		if (now) {
+			RefreshTable(now);
+		}
 	}
 	virtual void ChangeMenuOnMenuSelection(wxCommandEvent& event) { 
 		if (-1 == position) { return; }
@@ -453,7 +461,11 @@ protected:
 			ChangeWindow* changeWindow = new ChangeWindow(this, now, isUserType,
 				isUserType ? idx : idx - now->GetUserTypeListSize(), 1, view_mode);
 
-			changeWindow->Show();
+			changeWindow->ShowModal();
+
+			if (now) {
+				RefreshTable(now);
+			}
 		}
 		else {
 			int idx = position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * dataViewListCtrlNo;
@@ -462,7 +474,11 @@ protected:
 			ChangeWindow* changeWindow = new ChangeWindow(this, now, isUserType,
 				isUserType? now->GetUserTypeIndexFromIlistIndex(idx) : now->GetItemIndexFromIlistIndex(idx), 1, view_mode);
 
-			changeWindow->Show();
+			changeWindow->ShowModal();
+
+			if (now) {
+				RefreshTable(now);
+			}
 		}
 	}
 	virtual void RemoveMenuOnMenuSelection(wxCommandEvent& event) { 
