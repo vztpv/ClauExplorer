@@ -190,8 +190,13 @@ private:
 				value.clear();
 
 				if (count < utSize) {
-					value.push_back(wxVariant(global->GetUserTypeList(utCount)->GetName().c_str()));
-					value.push_back(wxVariant(""));
+					if (global->GetUserTypeList(utCount)->GetName().empty()) {
+						value.push_back(wxVariant(wxT("NO_NAME")));
+					}
+					else {
+						value.push_back(wxVariant(global->GetUserTypeList(utCount)->GetName().c_str()));
+					}
+					value.push_back(wxVariant(wxT("")));
 					utCount++;
 				}
 				else {
@@ -201,15 +206,19 @@ private:
 				}
 
 				m_dataViewListCtrl1->AppendItem(value);
-
 				count++;
 			}
 			for (int i = 0; i < size_per_unit; ++i) {
 				value.clear();
 
 				if (count < utSize) {
-					value.push_back(wxVariant(global->GetUserTypeList(utCount)->GetName().c_str()));
-					value.push_back(wxVariant(""));
+					if (global->GetUserTypeList(utCount)->GetName().empty()) {
+						value.push_back(wxVariant(wxT("NO_NAME")));
+					}
+					else {
+						value.push_back(wxVariant(global->GetUserTypeList(utCount)->GetName().c_str()));
+					}
+					value.push_back(wxVariant(wxT("")));
 					utCount++;
 				}
 				else {
@@ -225,8 +234,13 @@ private:
 				value.clear();
 
 				if (count < utSize) {
-					value.push_back(wxVariant(global->GetUserTypeList(utCount)->GetName().c_str()));
-					value.push_back(wxVariant(""));
+					if (global->GetUserTypeList(utCount)->GetName().empty()) {
+						value.push_back(wxVariant(wxT("NO_NAME")));
+					}
+					else {
+						value.push_back(wxVariant(global->GetUserTypeList(utCount)->GetName().c_str()));
+					}
+					value.push_back(wxVariant(wxT("")));
 					utCount++;
 				}
 				else {
@@ -242,8 +256,13 @@ private:
 				value.clear();
 
 				if (count < utSize) {
-					value.push_back(wxVariant(global->GetUserTypeList(utCount)->GetName().c_str()));
-					value.push_back(wxVariant(""));
+					if (global->GetUserTypeList(utCount)->GetName().empty()) {
+						value.push_back(wxVariant(wxT("NO_NAME")));
+					}
+					else {
+						value.push_back(wxVariant(global->GetUserTypeList(utCount)->GetName().c_str()));
+					}
+					value.push_back(wxVariant(wxT("")));
 					utCount++;
 				}
 				else {
@@ -271,8 +290,13 @@ private:
 				value.clear();
 
 				if (global->IsUserTypeList(count)) {
-					value.push_back(wxVariant(global->GetUserTypeList(utCount)->GetName().c_str()));
-					value.push_back(wxVariant(""));
+					if (global->GetUserTypeList(utCount)->GetName().empty()) {
+						value.push_back(wxVariant(wxT("NO_NAME")));
+					}
+					else {
+						value.push_back(wxVariant(global->GetUserTypeList(utCount)->GetName().c_str()));
+					}
+					value.push_back(wxVariant(wxT("")));
 					utCount++;
 				}
 				else {
@@ -288,8 +312,13 @@ private:
 				value.clear();
 
 				if (global->IsUserTypeList(count)) {
-					value.push_back(wxVariant(global->GetUserTypeList(utCount)->GetName().c_str()));
-					value.push_back(wxVariant(""));
+					if (global->GetUserTypeList(utCount)->GetName().empty()) {
+						value.push_back(wxVariant(wxT("NO_NAME")));
+					}
+					else {
+						value.push_back(wxVariant(global->GetUserTypeList(utCount)->GetName().c_str()));
+					}
+					value.push_back(wxVariant(wxT("")));
 					utCount++;
 				}
 				else {
@@ -305,8 +334,13 @@ private:
 				value.clear();
 
 				if (global->IsUserTypeList(count)) {
-					value.push_back(wxVariant(global->GetUserTypeList(utCount)->GetName().c_str()));
-					value.push_back(wxVariant(""));
+					if (global->GetUserTypeList(utCount)->GetName().empty()) {
+						value.push_back(wxVariant(wxT("NO_NAME")));
+					}
+					else {
+						value.push_back(wxVariant(global->GetUserTypeList(utCount)->GetName().c_str()));
+					}
+					value.push_back(wxVariant(wxT("")));
 					utCount++;
 				}
 				else {
@@ -322,8 +356,13 @@ private:
 				value.clear();
 
 				if (global->IsUserTypeList(count)) {
-					value.push_back(wxVariant(global->GetUserTypeList(utCount)->GetName().c_str()));
-					value.push_back(wxVariant(""));
+					if (global->GetUserTypeList(utCount)->GetName().empty()) {
+						value.push_back(wxVariant(wxT("NO_NAME")));
+					}
+					else {
+						value.push_back(wxVariant(global->GetUserTypeList(utCount)->GetName().c_str()));
+					}
+					value.push_back(wxVariant(wxT("")));
 					utCount++;
 				}
 				else {
@@ -475,11 +514,11 @@ protected:
 
 	virtual void m_dataViewListCtrl1OnChar(wxKeyEvent& event) {
 		dataViewListCtrlNo = 0; position = m_dataViewListCtrl1->GetSelectedRow();
-		if (1 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position < m_dataViewListCtrl1->GetItemCount()) {
+		if (1 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position < now->GetUserTypeListSize()) {
 			now = now->GetUserTypeList(position);
 			RefreshTable(now);
 		}
-		else  if (2 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position < m_dataViewListCtrl1->GetItemCount()) {
+		else  if (2 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position < now->GetUserTypeListSize()) {
 			if (now->IsUserTypeList(position)) {
 				const int idx = now->GetUserTypeIndexFromIlistIndex(position);
 				now = now->GetUserTypeList(idx);
@@ -524,11 +563,11 @@ protected:
 	}
 	virtual void m_dataViewListCtrl2OnChar(wxKeyEvent& event) { 
 		dataViewListCtrlNo = 1; position = m_dataViewListCtrl2->GetSelectedRow();
-		if (1 == view_mode && NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 1 && position >= 0 && position < m_dataViewListCtrl2->GetItemCount()) {
+		if (1 == view_mode && NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 1 && position >= 0 && position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) <  now->GetUserTypeListSize()) {
 			now = now->GetUserTypeList(position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4));
 			RefreshTable(now);
 		}
-		else  if (2 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position < m_dataViewListCtrl2->GetItemCount()) {
+		else  if (2 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) < now->GetUserTypeListSize()) {
 			const int pos = (position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4));
 			if (now->IsUserTypeList(pos)) {
 				const int idx = now->GetUserTypeIndexFromIlistIndex(pos);
@@ -575,11 +614,11 @@ protected:
 	}
 	virtual void m_dataViewListCtrl3OnChar(wxKeyEvent& event) {
 		dataViewListCtrlNo = 2; position = m_dataViewListCtrl3->GetSelectedRow();
-		if (1 == view_mode && NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 2 && position >= 0 && position < m_dataViewListCtrl3->GetItemCount()) {
+		if (1 == view_mode && NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 2 && position >= 0 && position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 2 < now->GetUserTypeListSize()) {
 			now = now->GetUserTypeList(position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 2);
 			RefreshTable(now);
 		}
-		else  if (2 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position < m_dataViewListCtrl3->GetItemCount()) {
+		else  if (2 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 2 < now->GetUserTypeListSize()) {
 			const int pos = (position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 2);
 			if (now->IsUserTypeList(pos)) {
 				const int idx = now->GetUserTypeIndexFromIlistIndex(pos);
@@ -625,11 +664,11 @@ protected:
 	}
 	virtual void m_dataViewListCtrl4OnChar(wxKeyEvent& event) {
 		dataViewListCtrlNo = 3; position = m_dataViewListCtrl4->GetSelectedRow();
-		if (1 == view_mode && NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 3 && position >= 0 && position < m_dataViewListCtrl4->GetItemCount()) {
+		if (1 == view_mode && NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 3 && position >= 0 && position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 3 < now->GetUserTypeListSize()) {
 			now = now->GetUserTypeList(position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 3);
 			RefreshTable(now);
 		}
-		else  if (2 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position < m_dataViewListCtrl4->GetItemCount()) {
+		else  if (2 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 3 < now->GetUserTypeListSize()) {
 			const int pos = (position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 3);
 			if (now->IsUserTypeList(pos)) {
 				const int idx = now->GetUserTypeIndexFromIlistIndex(pos);
