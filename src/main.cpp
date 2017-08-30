@@ -31,7 +31,9 @@
 #include <wx/textctrl.h>
 #include <wx/sizer.h>
 #include <wx/dataview.h>
+#include <wx/stc/stc.h>
 #include <wx/frame.h>
+
 
 ///////////////////////////////////////////////////////////////////////////
 #define NK_ENTER 13
@@ -377,6 +379,9 @@ private:
 		}
 	}
 protected:
+	wxStyledTextCtrl* m_code;
+	wxButton* m_code_run_button;
+
 	wxMenuBar* menuBar;
 	wxMenu* FileMenu;
 	wxMenu* DoMenu;
@@ -530,7 +535,19 @@ protected:
 
 	virtual void m_dataViewListCtrl1OnChar(wxKeyEvent& event) {
 		dataViewListCtrlNo = 0; position = m_dataViewListCtrl1->GetSelectedRow();
-		if (1 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position < now->GetUserTypeListSize()) {
+		if (WXK_ESCAPE == event.GetKeyCode()) {
+			wxDataViewListCtrl* ctrl[4];
+			ctrl[0] = m_dataViewListCtrl1;
+			ctrl[1] = m_dataViewListCtrl2;
+			ctrl[2] = m_dataViewListCtrl3;
+			ctrl[3] = m_dataViewListCtrl4;
+
+			for (int i = 0; i < 4; ++i) {
+				ctrl[i]->UnselectAll();
+			}
+			position = -1;
+		}
+		else if (1 == view_mode && NK_ENTER == event.GetKeyCode() && position >= 0 && position < now->GetUserTypeListSize()) {
 			now = now->GetUserTypeList(position);
 			RefreshTable(now);
 		}
@@ -579,7 +596,19 @@ protected:
 	}
 	virtual void m_dataViewListCtrl2OnChar(wxKeyEvent& event) { 
 		dataViewListCtrlNo = 1; position = m_dataViewListCtrl2->GetSelectedRow();
-		if (1 == view_mode && NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 1 && position >= 0 && position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) <  now->GetUserTypeListSize()) {
+		if (WXK_ESCAPE == event.GetKeyCode()) {
+			wxDataViewListCtrl* ctrl[4];
+			ctrl[0] = m_dataViewListCtrl1;
+			ctrl[1] = m_dataViewListCtrl2;
+			ctrl[2] = m_dataViewListCtrl3;
+			ctrl[3] = m_dataViewListCtrl4;
+
+			for (int i = 0; i < 4; ++i) {
+				ctrl[i]->UnselectAll();
+			}
+			position = -1;
+		}
+		else if (1 == view_mode && NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 1 && position >= 0 && position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) <  now->GetUserTypeListSize()) {
 			now = now->GetUserTypeList(position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4));
 			RefreshTable(now);
 		}
@@ -630,7 +659,19 @@ protected:
 	}
 	virtual void m_dataViewListCtrl3OnChar(wxKeyEvent& event) {
 		dataViewListCtrlNo = 2; position = m_dataViewListCtrl3->GetSelectedRow();
-		if (1 == view_mode && NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 2 && position >= 0 && position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 2 < now->GetUserTypeListSize()) {
+		if (WXK_ESCAPE == event.GetKeyCode()) {
+			wxDataViewListCtrl* ctrl[4];
+			ctrl[0] = m_dataViewListCtrl1;
+			ctrl[1] = m_dataViewListCtrl2;
+			ctrl[2] = m_dataViewListCtrl3;
+			ctrl[3] = m_dataViewListCtrl4;
+
+			for (int i = 0; i < 4; ++i) {
+				ctrl[i]->UnselectAll();
+			}
+			position = -1;
+		}
+		else if (1 == view_mode && NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 2 && position >= 0 && position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 2 < now->GetUserTypeListSize()) {
 			now = now->GetUserTypeList(position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 2);
 			RefreshTable(now);
 		}
@@ -680,7 +721,19 @@ protected:
 	}
 	virtual void m_dataViewListCtrl4OnChar(wxKeyEvent& event) {
 		dataViewListCtrlNo = 3; position = m_dataViewListCtrl4->GetSelectedRow();
-		if (1 == view_mode && NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 3 && position >= 0 && position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 3 < now->GetUserTypeListSize()) {
+		if (WXK_ESCAPE == event.GetKeyCode()) {
+			wxDataViewListCtrl* ctrl[4];
+			ctrl[0] = m_dataViewListCtrl1;
+			ctrl[1] = m_dataViewListCtrl2;
+			ctrl[2] = m_dataViewListCtrl3;
+			ctrl[3] = m_dataViewListCtrl4;
+
+			for (int i = 0; i < 4; ++i) {
+				ctrl[i]->UnselectAll();
+			}
+			position = -1;
+		}
+		else if (1 == view_mode && NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 3 && position >= 0 && position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 3 < now->GetUserTypeListSize()) {
 			now = now->GetUserTypeList(position + ((now->GetUserTypeListSize() + now->GetItemListSize()) / 4) * 3);
 			RefreshTable(now);
 		}
@@ -773,9 +826,32 @@ protected:
 		frame->Show(true);
 	}
 
+	virtual void m_code_run_buttonOnButtonClick(wxCommandEvent& event) { 
+		string mainStr = "Main = { $call = { id = main } }";
+		string eventStr(m_code->GetValue().c_str());
+		wiz::load_data::UserType eventUT;
+		ExcuteData excuteData;
+
+		wiz::load_data::LoadData::LoadDataFromString(eventStr, eventUT);
+
+		excuteData.pEvents = &eventUT;
+		//excuteData.NO_USE_INPUT = true;
+		//excuteData.NO_USE_OUTPUT = true;
+
+		try {
+			excute_module(mainStr, &global, excuteData, 0);
+
+			now = &global;
+			RefreshTable(now);
+		}
+		catch (...) {
+			//
+		}
+	}
+
 public:
 
-	MainFrame(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("ClauExplorer"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(789, 512), long style = wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL);
+	MainFrame(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("ClauExplorer"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(1024, 512), long style = wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL);
 
 	~MainFrame();
 
@@ -883,7 +959,55 @@ MainFrame::MainFrame(wxWindow* parent, wxWindowID id, const wxString& title, con
 	m_dataViewListCtrl4 = new wxDataViewListCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0);
 	bSizer3->Add(m_dataViewListCtrl4, 1, wxALL | wxEXPAND, 5);
 
+	wxBoxSizer* bSizer6;
+	bSizer6 = new wxBoxSizer(wxVERTICAL);
+
+	m_code = new wxStyledTextCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, wxEmptyString);
+	m_code->SetUseTabs(true);
+	m_code->SetTabWidth(4);
+	m_code->SetIndent(4);
+	m_code->SetTabIndents(true);
+	m_code->SetBackSpaceUnIndents(true);
+	m_code->SetViewEOL(false);
+	m_code->SetViewWhiteSpace(false);
+	m_code->SetMarginWidth(2, 0);
+	m_code->SetIndentationGuides(true);
+	m_code->SetMarginType(1, wxSTC_MARGIN_SYMBOL);
+	m_code->SetMarginMask(1, wxSTC_MASK_FOLDERS);
+	m_code->SetMarginWidth(1, 16);
+	m_code->SetMarginSensitive(1, true);
+	m_code->SetProperty(wxT("fold"), wxT("1"));
+	m_code->SetFoldFlags(wxSTC_FOLDFLAG_LINEBEFORE_CONTRACTED | wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED);
+	m_code->SetMarginType(0, wxSTC_MARGIN_NUMBER);
+	m_code->SetMarginWidth(0, m_code->TextWidth(wxSTC_STYLE_LINENUMBER, wxT("_99999")));
+	m_code->MarkerDefine(wxSTC_MARKNUM_FOLDER, wxSTC_MARK_BOXPLUS);
+	m_code->MarkerSetBackground(wxSTC_MARKNUM_FOLDER, wxColour(wxT("BLACK")));
+	m_code->MarkerSetForeground(wxSTC_MARKNUM_FOLDER, wxColour(wxT("WHITE")));
+	m_code->MarkerDefine(wxSTC_MARKNUM_FOLDEROPEN, wxSTC_MARK_BOXMINUS);
+	m_code->MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPEN, wxColour(wxT("BLACK")));
+	m_code->MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPEN, wxColour(wxT("WHITE")));
+	m_code->MarkerDefine(wxSTC_MARKNUM_FOLDERSUB, wxSTC_MARK_EMPTY);
+	m_code->MarkerDefine(wxSTC_MARKNUM_FOLDEREND, wxSTC_MARK_BOXPLUS);
+	m_code->MarkerSetBackground(wxSTC_MARKNUM_FOLDEREND, wxColour(wxT("BLACK")));
+	m_code->MarkerSetForeground(wxSTC_MARKNUM_FOLDEREND, wxColour(wxT("WHITE")));
+	m_code->MarkerDefine(wxSTC_MARKNUM_FOLDEROPENMID, wxSTC_MARK_BOXMINUS);
+	m_code->MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPENMID, wxColour(wxT("BLACK")));
+	m_code->MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPENMID, wxColour(wxT("WHITE")));
+	m_code->MarkerDefine(wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_EMPTY);
+	m_code->MarkerDefine(wxSTC_MARKNUM_FOLDERTAIL, wxSTC_MARK_EMPTY);
+	m_code->SetSelBackground(true, wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
+	m_code->SetSelForeground(true, wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT));
+	bSizer6->Add(m_code, 7, wxEXPAND | wxALL, 5);
+
+	m_code_run_button = new wxButton(this, wxID_ANY, wxT("MyButton"), wxDefaultPosition, wxDefaultSize, 0);
+	bSizer6->Add(m_code_run_button, 1, wxALL | wxEXPAND, 5);
+
+
+	bSizer3->Add(bSizer6, 1, wxEXPAND, 5);
+
+
 	bSizer->Add(bSizer3, 1, wxEXPAND, 5);
+
 
 	m_dataViewListCtrl1->AppendTextColumn(wxT("name"));
 	m_dataViewListCtrl1->AppendTextColumn(wxT("value"));
@@ -933,6 +1057,7 @@ MainFrame::MainFrame(wxWindow* parent, wxWindowID id, const wxString& title, con
 	m_dataViewListCtrl4->Connect(wxEVT_COMMAND_DATAVIEW_SELECTION_CHANGED, wxDataViewEventHandler(MainFrame::m_dataViewListCtrl4OnDataViewListCtrlSelectionChanged), NULL, this);
 	
 	this->Connect(OtherWindowMenu->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::OtherWindowMenuOnMenuSelection));
+	m_code_run_button->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MainFrame::m_code_run_buttonOnButtonClick), NULL, this); 
 }
 
 MainFrame::~MainFrame()
@@ -963,6 +1088,8 @@ MainFrame::~MainFrame()
 	m_dataViewListCtrl4->Disconnect(wxEVT_COMMAND_DATAVIEW_SELECTION_CHANGED, wxDataViewEventHandler(MainFrame::m_dataViewListCtrl4OnDataViewListCtrlSelectionChanged), NULL, this);
 
 	this->Disconnect(wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::OtherWindowMenuOnMenuSelection));
+
+	m_code_run_button->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MainFrame::m_code_run_buttonOnButtonClick), NULL, this);
 }
 
 class TestApp : public wxApp {
