@@ -835,8 +835,8 @@ protected:
 		wiz::load_data::LoadData::LoadDataFromString(eventStr, eventUT);
 
 		excuteData.pEvents = &eventUT;
-		//excuteData.NO_USE_INPUT = true;
-		//excuteData.NO_USE_OUTPUT = true;
+		excuteData.noUseInput = true;
+		excuteData.noUseOutput = true;
 
 		try {
 			excute_module(mainStr, &global, excuteData, 0);
