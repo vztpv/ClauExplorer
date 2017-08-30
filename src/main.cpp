@@ -1000,11 +1000,11 @@ MainFrame::MainFrame(wxWindow* parent, wxWindowID id, const wxString& title, con
 	m_code->SetSelForeground(true, wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT));
 	bSizer6->Add(m_code, 7, wxEXPAND | wxALL, 5);
 
-	m_code_run_button = new wxButton(this, wxID_ANY, wxT("MyButton"), wxDefaultPosition, wxDefaultSize, 0);
+	m_code_run_button = new wxButton(this, wxID_ANY, wxT("Run"), wxDefaultPosition, wxDefaultSize, 0);
 	bSizer6->Add(m_code_run_button, 1, wxALL | wxEXPAND, 5);
 
 
-	bSizer3->Add(bSizer6, 1, wxEXPAND, 5);
+	bSizer3->Add(bSizer6, 3, wxEXPAND, 5);
 
 
 	bSizer->Add(bSizer3, 1, wxEXPAND, 5);
