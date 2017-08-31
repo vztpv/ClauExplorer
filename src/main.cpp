@@ -839,9 +839,8 @@ protected:
 		excuteData.noUseOutput = true;
 
 		try {
-			excute_module(mainStr, &global, excuteData, 0);
+			excute_module(mainStr, now, excuteData, 0);
 
-			now = &global;
 			RefreshTable(now);
 		}
 		catch (...) {
