@@ -848,7 +848,19 @@ protected:
 			//
 		}
 	}
-
+	/*
+	virtual void CodeViewMenuOnMenuSelection(wxCommandEvent& event) {
+		if (false == m_code->IsShownOnScreen())
+		{
+			m_code->Show();
+			m_code_run_button->Show();
+		}
+		else {
+			m_code->Hide();
+			m_code_run_button->Hide();
+		}
+	}
+	*/
 public:
 
 	MainFrame(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("ClauExplorer"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(1024, 512), long style = wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL);
@@ -910,6 +922,10 @@ MainFrame::MainFrame(wxWindow* parent, wxWindowID id, const wxString& title, con
 	wxMenuItem* IListViewMenu;
 	IListViewMenu = new wxMenuItem(ViewMenu, wxID_ANY, wxString(wxT("ViewB")), wxEmptyString, wxITEM_NORMAL);
 	ViewMenu->Append(IListViewMenu);
+
+	//wxMenuItem* CodeViewMenu;
+	//CodeViewMenu = new wxMenuItem(ViewMenu, wxID_ANY, wxString(wxT("CodeView")), wxEmptyString, wxITEM_NORMAL);
+	//ViewMenu->Append(CodeViewMenu);
 
 	menuBar->Append(ViewMenu, wxT("View"));
 
@@ -1000,11 +1016,14 @@ MainFrame::MainFrame(wxWindow* parent, wxWindowID id, const wxString& title, con
 	m_code->SetSelForeground(true, wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT));
 	bSizer6->Add(m_code, 7, wxEXPAND | wxALL, 5);
 
+	//m_code->Hide();
+
 	m_code_run_button = new wxButton(this, wxID_ANY, wxT("Run"), wxDefaultPosition, wxDefaultSize, 0);
 	bSizer6->Add(m_code_run_button, 1, wxALL | wxEXPAND, 5);
 
+	//m_code_run_button->Hide();
 
-	bSizer3->Add(bSizer6, 3, wxEXPAND, 5);
+	bSizer3->Add(bSizer6, 2, wxEXPAND, 5);
 
 
 	bSizer->Add(bSizer3, 1, wxEXPAND, 5);
@@ -1059,6 +1078,7 @@ MainFrame::MainFrame(wxWindow* parent, wxWindowID id, const wxString& title, con
 	
 	this->Connect(OtherWindowMenu->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::OtherWindowMenuOnMenuSelection));
 	m_code_run_button->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MainFrame::m_code_run_buttonOnButtonClick), NULL, this); 
+	//this->Connect(CodeViewMenu->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::CodeViewMenuOnMenuSelection));
 }
 
 MainFrame::~MainFrame()
@@ -1091,6 +1111,7 @@ MainFrame::~MainFrame()
 	this->Disconnect(wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::OtherWindowMenuOnMenuSelection));
 
 	m_code_run_button->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MainFrame::m_code_run_buttonOnButtonClick), NULL, this);
+	//this->Disconnect(wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::CodeViewMenuOnMenuSelection));
 }
 
 class TestApp : public wxApp {
