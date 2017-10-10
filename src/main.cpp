@@ -39,6 +39,7 @@
 #define NK_ENTER 13
 #define NK_BACKSPACE 8
 
+using namespace std;
 
 class ChangeWindow : public wxDialog
 {
